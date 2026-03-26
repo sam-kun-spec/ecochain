@@ -1,4 +1,3 @@
-// md:hidden md:flex
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -71,32 +70,43 @@ function SidebarContent({ onClose }) {
   );
 }
 
-export default function Sidebar() {
-  const [open, setOpen] = useState(false);
-
-  // Close on resize to desktop
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   useEffect(() => {
-    const handler = () => { if (window.innerWidth >= 768) setOpen(false); };
+    const handler = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
   }, []);
+  return isMobile;
+}
 
-  // Prevent body scroll when drawer is open
+export default function Sidebar() {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMobile) setOpen(false);
+  }, [isMobile]);
+
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  return (
-    <>
-      {/* ── Desktop: always-visible sidebar (unchanged) ── */}
-      <aside className="hidden md:flex h-full w-[260px] flex-shrink-0 flex-col border-r border-slate-100 bg-white px-4 py-5">
+  if (!isMobile) {
+    return (
+      <aside className="h-full w-[260px] flex-shrink-0 flex flex-col border-r border-slate-100 bg-white px-4 py-5">
         <SidebarContent />
       </aside>
+    );
+  }
 
-      {/* ── Mobile: hamburger button ── */}
+  return (
+    <>
+      {/* Hamburger button */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-xl bg-white shadow-sm ring-1 ring-slate-200"
+        style={{ position: "fixed", top: 16, left: 16, zIndex: 50 }}
+        className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-xl bg-white shadow-sm ring-1 ring-slate-200"
         onClick={() => setOpen(true)}
         aria-label="Open navigation"
       >
@@ -105,23 +115,31 @@ export default function Sidebar() {
         <span className="block h-[2px] w-5 bg-slate-700 rounded" />
       </button>
 
-      {/* ── Mobile: overlay ── */}
+      {/* Overlay */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 z-40 bg-black/40"
+          style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.4)" }}
           onClick={() => setOpen(false)}
         />
       )}
 
-      {/* ── Mobile: drawer ── */}
+      {/* Drawer */}
       <aside
-        className={`md:hidden fixed top-0 left-0 z-50 h-full w-[260px] flex-shrink-0 border-r border-slate-100 bg-white px-4 py-5 flex flex-col transition-transform duration-300 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 50,
+          height: "100%",
+          width: 260,
+          transform: open ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+        }}
+        className="flex flex-col border-r border-slate-100 bg-white px-4 py-5"
       >
-        {/* Close button */}
         <button
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl leading-none"
+          style={{ position: "absolute", top: 16, right: 16 }}
+          className="text-slate-400 hover:text-slate-700 text-xl leading-none"
           onClick={() => setOpen(false)}
           aria-label="Close navigation"
         >
