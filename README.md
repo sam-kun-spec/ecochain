@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Backend will run at `http://localhost:3001`.
+Backend will run at `${import.meta.env.VITE_API_URL}`.
 
 ### 2) Frontend (Vite)
 

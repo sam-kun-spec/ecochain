@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useRef, useStat
 
 const AppContext = createContext(null);
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "${import.meta.env.VITE_API_URL}";
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
