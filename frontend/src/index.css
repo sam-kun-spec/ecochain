@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Subtle app background helper */
+html,
+body,
+#root {
+  height: 100%;
+}
+
